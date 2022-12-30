@@ -3,56 +3,72 @@
 function Export-QrCode() {
   <#
   .SYNOPSIS
-    Short description
+    Download one ( or more ) QR codes from the https://goqr.me API server.
   .DESCRIPTION
-    Long description
+    Export-QrCode generates https://goqr.me API URL, sends GET request towards it and downloads the generated QR code image into passed $Path.
   .EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
+    PS C:\> Export-QrCode -Path "C:\QrCodes\" -Body "NazdarSvet!";
+    Downloads a Qr code with "NazdarSvet!" text into 'C:\QrCodes\' folder. Folder has to exists!
+  .EXAMPLE
+    PS C:\> Export-QrCode -Path "C:\QrCodes" -Body "https://www.google.com/search?q=baronprosimir" -FileName "WhoIsBaronProsimir" -Size 300 -Color 9-97-153 -BgColor 230-147-34  -Margin 5 -QZone 2 -Format svg;
+    Downolads a QR code which contains Google search of the "BaronProsimir" text url with size of 300px, blue data color and orange background, 5px margin and 2px quiet-zone on SVG format.
   .INPUTS
+    Nothing
   .OUTPUTS
     File ( *.eps, *.gif, *.jpeg, *.jpg, *.png, *.svg ).
   .NOTES
     Version: 1.0.1
     Created by: BaronProsimir
+  .LINK
+    Original goqr.me API documentation: https://goqr.me/api/doc/create-qr-code
+    Github repository: https://github.com/BaronProsimir/PS-QrCodes-Haven
   #>
   [CmdletBinding()]
   param (
     # A required parameter that specifies the location to save the QR code file.
     [Parameter(Mandatory,HelpMessage="A required parameter that specifies the location to save the QR code file.")]
     [string]$Path,
-    # The text to store within the QR code.
-    [Parameter(Mandatory, HelpMessage="The text to store within the QR code.")]
+    # The text to store within the QR code/s.
+    #
+    # If one string is passed, only one QR code will be generated without count.
+    # If more strings are passed, the count on the end of the $FileName is added. ( Starting with 0! )
+    # ( QrCode0, QrCode1, QrCode2 etc. )
+    [Parameter(Mandatory, HelpMessage="The text to store within the QR code/s.")]
     [string[]]$Body,
-    # The name of the downloaded QR code file.
+    # The name/s of the downloaded QR code file/s.
+    # ( If more than one string is passed as a $Body parameter, count from 0 is added on the end of the name. )
     [Parameter()]
     [string]$FileName = "QrCode",
-    # Specifies the size of the QR code image you want to generate.
-    #   - In PIXELS for raster graphic formats like PNG, GIF or JPEG.
-    #   - As LOGICAL UNIT for vector graphics (SVG, EPS).
+    # Specifies the size of the QR code image you want to generate"
+    #
+    # - In PIXELS for raster graphic formats like PNG, GIF or JPEG.
+    # - As LOGICAL UNIT for vector graphics (SVG, EPS).
     #
     # Minimum value: 10
     # Maximum value: 1000
-    # Default value: 200
     [ValidateRange(10, 1000)]
     [Parameter()]
     [int16]$Size = 200,
-    # Specifies the charset the text submitted via data parameter is encoded in.
+    # Specifies the charset the text submitted via $Body parameter is encoded in.
     [ValidateSet("ISO-8859-1", "UTF-8")]
     [Parameter()]
     [string]$CharsetSource = "UTF-8",
     # The data color of the final QR code.
-    [Parameter()]#[ValidatePattern("[0-25]-[0-256]-[0-256]")]
+    #
+    # Format: RGB ( Red-Green-Blue)
+    # Example: 255-0-0 => Red
+    [Parameter()]
     [string]$Color = "0-0-0",
     # The background color of the final QR code.
+    #
+    # Format: RGB ( Red-Green-Blue)
+    # Example: 255-255-255 => White
     [Parameter()]
-    #[ValidatePattern("[0-25]-[0-256]-[0-256]")]
     [string]$BgColor = "255-255-255",
     # Thickness of a margin in PIXELS.
     #
     # Minimum value: 0
     # Maximum value: 50
-    # Default value: 1
     [ValidateRange(0, 50)]
     [Parameter()]
     [int16]$Margin = 1,
@@ -60,7 +76,7 @@ function Export-QrCode() {
     #
     # Minimum value: 0
     # Maximum value: 100
-    # Default value: 0 => No "quiet zone".
+    # Default value: No "quiet zone".
     [ValidateRange(0, 100)]
     [Parameter()]
     [int16]$QZone = 0,
@@ -72,15 +88,61 @@ function Export-QrCode() {
     [string]$Format = "png"
   )
   begin{
-    $Path = Convert-Path -Path $Path;
+
+    # Url's array init:
+    $qrUrls = @();
+
+    # Convert passed path into valid one:
+    $DownloadPath = Convert-Path -Path $Path;
+
+    # Goqr.me API server URL:
     $QrGeneratorPath = "http://api.qrserver.com/v1/create-qr-code";
+
   }
   process {
-    $FullQrCodePath = "$QrGeneratorPath/?data=$Body&size=$($Size)x$Size&color=$Color&bgcolor=$BgColor&margin=$Margin&qzone=$QZone&format=$Format";
-    Write-Debug $FullQrCodePath;
+
+    # Build an URL for each passed Body string:
+    foreach ($item in $Body) {
+
+      # Generate URL string:
+      $FullQrCodePath = "$QrGeneratorPath/?data=$item"; # Add body.
+      $FullQrCodePath += "&size=$($Size)x$Size";        # Add size.
+      $FullQrCodePath += "&color=$Color";               # Add color.
+      $FullQrCodePath += "&bgcolor=$BgColor";           # Add background color.
+      $FullQrCodePath += "&margin=$Margin";             # Add margin.
+      $FullQrCodePath += "&qzone=$QZone";               # Add "Quite zone".
+      $FullQrCodePath += "&format=$Format";             # Add file format.
+
+      # Add newly generated URL string into array:
+      $qrUrls += $FullQrCodePath;
+
+    }
   }
   end {
-    [System.Net.WebClient]::new().DownloadFile($FullQrCodePath, "$Path\$FileName.$format");
-    return;
+    try {
+
+      # Naming counter init:
+      $qrCounter = 0;
+
+      # Loop throuhg the Uls and download each QR code:
+      foreach ($qrUrl in $qrUrls) {
+
+        # Generate path for download:
+        $downloadFilePath = "$DownloadPath\$FileName$(if ( $qrUrls.Length -ge 2 ){ "$qrCounter" }).$format";
+
+        # Download file:
+        [System.Net.WebClient]::new().DownloadFile($qrUrl, $downloadFilePath);
+
+        # Increment a naming counter:
+        $qrCounter++;
+      }
+
+      # End the function:
+      return;
+      
+    }
+    catch {
+      Write-Error $Error
+    }
   }
 }
