@@ -1,4 +1,4 @@
-# PowerShell's QrCodes Haven #
+# PowerShell QrCode's Haven #
 
 Description: Contains a PowerShell functions which handles QR codes via [goqr.me](https://goqr.me) API.
 
