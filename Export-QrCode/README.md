@@ -24,7 +24,7 @@ The `Export-QrCode` function generates [GoQr.me](https://goqr.me) API URL, sends
 
 ## EXAMPLES
 
-### Example 1: Downloads a default Qr Code
+### Example 1: Download a default Qr Code
 
 ```powershell
 Export-QrCode -Path "C:\QrCodes\" -Body "NazdarSvet!"
@@ -212,7 +212,7 @@ Accept wildcard characters: False
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,  
 -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose,  
--WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+-WarningAction, and -WarningVariable. For more information, see [about_CommonParameters.](https://go.microsoft.com/fwlink/?LinkID=113216)
 
 ## INPUTS
 
@@ -224,7 +224,7 @@ You can pipe a strings containg a path and a body ( bodies ) of QR code/s to thi
 
 ### System.Drawing.Bitmap
 
-This function returns an object/s which shares choosed **Format**.
+This function returns an object/s which shares the choosed [**Format**.](#-format)
 
 ## NOTES
 
@@ -234,4 +234,4 @@ Version: 1.0.0
 ## RELATED LINKS
 
 You can find an Original [goqr.me](https://goqr.me) API documentation [here..](https://goqr.me/api/doc/create-qr-code)  
-.. and Github repository over [here,](https://github.com/BaronProsimir/GoQrGenerator)
+.. and Github repository over [here.](https://github.com/BaronProsimir/GoQrGenerator)

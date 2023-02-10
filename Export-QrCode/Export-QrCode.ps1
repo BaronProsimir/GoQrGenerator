@@ -3,9 +3,9 @@
 function Export-QrCode() {
   <#
   .SYNOPSIS
-    This function generates 'goqr.me' API URL, sends GET request towards it and downloads the generated QR code/s image/s into a choosed path.
+    Exports parameterized Qr Code to a file.
   .DESCRIPTION
-    Export-QrCode generates https://goqr.me API URL, sends GET request towards it and downloads the generated QR code image into passed $Path.
+    The Export-QrCode function generates GoQr.me API URL, sends GET request towards it and downloads the generated QR code image into a choosed path.
   .EXAMPLE
     PS C:\> Export-QrCode -Path "C:\QrCodes\" -Body "NazdarSvet!";
     Downloads a Qr code with "NazdarSvet!" text into 'C:\QrCodes\' folder. Folder has to exists!
