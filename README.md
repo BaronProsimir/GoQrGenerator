@@ -1,4 +1,4 @@
-# PowerShell QrCode's Haven #
+# PowerShell GoQr QR Code Qenerator module #
 
 Description: Contains a PowerShell functions which handles QR codes via [goqr.me](https://goqr.me) API.
 
