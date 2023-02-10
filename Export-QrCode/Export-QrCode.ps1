@@ -3,7 +3,7 @@
 function Export-QrCode() {
   <#
   .SYNOPSIS
-    Download one ( or more ) QR codes from the https://goqr.me API server.
+    This function generates 'goqr.me' API URL, sends GET request towards it and downloads the generated QR code/s image/s into a choosed path.
   .DESCRIPTION
     Export-QrCode generates https://goqr.me API URL, sends GET request towards it and downloads the generated QR code image into passed $Path.
   .EXAMPLE
@@ -13,7 +13,9 @@ function Export-QrCode() {
     PS C:\> Export-QrCode -Path "C:\QrCodes" -Body "https://www.google.com/search?q=baronprosimir" -FileName "WhoIsBaronProsimir" -Size 300 -Color 9-97-153 -BgColor 230-147-34  -Margin 5 -QZone 2 -Format svg;
     Downolads a QR code which contains Google search of the "BaronProsimir" text url with size of 300px, blue data color and orange background, 5px margin and 2px quiet-zone on SVG format.
   .INPUTS
-    Nothing
+    String
+
+    You can pipe a strings containg a path and a body ( bodies ) of QR code/s to this cmdlet.
   .OUTPUTS
     File ( *.eps, *.gif, *.jpeg, *.jpg, *.png, *.svg ).
   .NOTES
